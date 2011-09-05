@@ -1,0 +1,13 @@
+Backlight notification for Samsung Nexus S (i9020 only!)
+
+Kernel distributors / developers:
+Please make sure that you inform your users that this works currently only with the i9020.
+
+The i9023 has difference(s) that we (morfic and me) have not yet discovered.
+Support for the i9023 may be added, as soon as we have found the difference(s).
+
+Liblights:
+And you need to replace the stock liblights by a modified liblights.
+You can find source code and prebuild binaries at "https://github.com/neldar/backlightnotification".
+
+For the nexus you can also use the same liblights binary as for the galaxy s.
