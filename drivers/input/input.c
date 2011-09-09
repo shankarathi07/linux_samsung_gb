@@ -27,14 +27,6 @@
 #include <linux/smp_lock.h>
 #include "input-compat.h"
 
-#ifdef CONFIG_BLD
-#include <linux/bld.h>
-#endif
-
-#ifdef CONFIG_SCREEN_DIMMER
-#include <linux/screen_dimmer.h>
-#endif
-
 #ifdef CONFIG_TOUCH_WAKE
 #include <linux/touch_wake.h>
 #endif
@@ -224,105 +216,21 @@ static void input_handle_event(struct input_dev *dev,
 		    !!test_bit(code, dev->key) != value) {
 
 #ifdef CONFIG_TOUCH_WAKE
-		    if (code == KEY_MENU || code == KEY_HOME || code == KEY_BACK || code == KEY_SEARCH)
-			{
-#ifdef CONFIG_SCREEN_DIMMER
-			    if (device_is_suspended() || screen_is_dimmed())
-#else
-			    if (device_is_suspended())
+ 		        if (code == KEY_POWER && value == 1)
+			    {
+				powerkey_press();
+			    }
 #endif
-				{
-				    disposition = INPUT_IGNORE_EVENT;
-				}
-			    else
-				{			 
-				    if (value != 2) {
-					__change_bit(code, dev->key);
-					if (value)
-					    input_start_autorepeat(dev, code);
-					else
-					    input_stop_autorepeat(dev);
-				    }
-				    
-				    disposition = INPUT_PASS_TO_HANDLERS;
-				}
-			}
-		    else
-#else
-#ifdef CONFIG_SCREEN_DIMMER
-		    if (code == KEY_MENU || code == KEY_HOME || code == KEY_BACK || code == KEY_SEARCH)
-			{
-			    if (screen_is_dimmed())
-				{
-				    disposition = INPUT_IGNORE_EVENT;
-				}
-			    else
-				{			 
-				    if (value != 2) {
-					__change_bit(code, dev->key);
-					if (value)
-					    input_start_autorepeat(dev, code);
-					else
-					    input_stop_autorepeat(dev);
-				    }
-				    
-				    disposition = INPUT_PASS_TO_HANDLERS;
-				}
-			}
-		    else
-#endif
-#endif 
-			{			 
-			    if (value != 2) {
+
+			if (value != 2) {
 				__change_bit(code, dev->key);
 				if (value)
-				    input_start_autorepeat(dev, code);
+					input_start_autorepeat(dev, code);
 				else
-				    input_stop_autorepeat(dev);
-			    }
-				    
-			    disposition = INPUT_PASS_TO_HANDLERS;
+					input_stop_autorepeat(dev);
 			}
 
-#ifdef CONFIG_TOUCH_WAKE
-		    if (code == KEY_POWER && value == 1)
-			{
-			    powerkey_press();
-			}
-
-		    if (code == KEY_MENU || code == KEY_HOME || code == KEY_BACK || code == KEY_SEARCH)
-			{
-			    if (value == 1)
-				{
-				    if (device_is_suspended())
-					{
-					    touch_press();
-					}
-				    else
-					{
-#ifdef CONFIG_BLD			
-					    touchkey_pressed();
-#endif
-#ifdef CONFIG_SCREEN_DIMMER
-					    touchscreen_pressed();
-#endif
-					}
-				}
-			}
-#else
-		    if (code == KEY_MENU || code == KEY_HOME || code == KEY_BACK || code == KEY_SEARCH)
-			{
-			    if (value == 1)
-				{
-#ifdef CONFIG_BLD			
-				    touchkey_pressed();
-#endif
-#ifdef CONFIG_SCREEN_DIMMER
-				    touchscreen_pressed();
-#endif
-				}
-			}
-#endif 
+			disposition = INPUT_PASS_TO_HANDLERS;
 		}
 		break;
 
