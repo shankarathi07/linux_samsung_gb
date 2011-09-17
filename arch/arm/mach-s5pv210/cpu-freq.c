@@ -60,9 +60,9 @@ static struct cpufreq_frequency_table freq_table[] = {
 	{L1, 1300*1000},
 	{L2, 1200*1000},
 	{L3, 1000*1000},
-	{L4, 800*1000},
-    {L5, 600*1000},
-	{L6, 400*1000},
+    {L4, 940*1000},
+	{L5, 800*1000},
+    {L6, 400*1000},
 	{L7, 200*1000},
 	{L8, 100*1000},
 	{0, CPUFREQ_TABLE_END},
@@ -129,10 +129,10 @@ static u32 clkdiv_val[9][11] = {
 	{0, 5, 5, 1, 3, 1, 4, 1, 3, 0, 0},
 	/* L3 : [1000/200/200/100][166/83][133/66][200/200] */
 	{0, 4, 4, 1, 3, 1, 4, 1, 3, 0, 0},
-	/* L4 : [800/200/200/100][166/83][133/66][200/200] */
+    /* L4 : [940/200/200/100][166/83][133/66][200/200] */
 	{0, 3, 3, 1, 3, 1, 4, 1, 3, 0, 0},
-    /* L5 : [600/200/200/100][166/83][133/66][200/200] */
-	{0, 2, 2, 1, 3, 1, 4, 1, 3, 0, 0},
+	/* L5 : [800/200/200/100][166/83][133/66][200/200] */
+	{0, 3, 3, 1, 3, 1, 4, 1, 3, 0, 0},
 	/* L6 : [400/200/200/100][166/83][133/66][200/200] */
 	{1, 3, 1, 1, 3, 1, 4, 1, 3, 0, 0},
 	/* L7 : [200/200/200/100][166/83][133/66][200/200] */
@@ -154,7 +154,7 @@ static struct s3c_freq clk_info[] = {
 		.pclk_dsys  = 83375,
 	},
 
-	[L1] = {	/* L0: 1.3GHz */
+	[L1] = {	/* L1: 1.3GHz */
 		.fclk       = 1300000,
 		.armclk     = 1300000,
 		.hclk_tns   = 0,
@@ -165,7 +165,7 @@ static struct s3c_freq clk_info[] = {
 		.hclk_dsys  = 166750,
 		.pclk_dsys  = 83375,
 	},
-	[L2] = {	/* L0: 1.2GHz */
+	[L2] = {	/* L2: 1.2GHz */
 		.fclk       = 1200000,
 		.armclk     = 1200000,
 		.hclk_tns   = 0,
@@ -176,7 +176,7 @@ static struct s3c_freq clk_info[] = {
 		.hclk_dsys  = 166750,
 		.pclk_dsys  = 83375,
 	},
-	[L3] = {	/* L1: 1GHz */
+	[L3] = {	/* L3: 1GHz */
 		.fclk       = 1000000,
 		.armclk     = 1000000,
 		.hclk_tns   = 0,
@@ -187,7 +187,18 @@ static struct s3c_freq clk_info[] = {
 		.hclk_dsys  = 166750,
 		.pclk_dsys  = 83375,
 	},
-	[L4] = {	/* L2: 800MHz */
+    [L4] = {	/* L4: 940MHz */
+		.fclk       = 940000,
+		.armclk     = 940000,
+		.hclk_tns   = 0,
+		.hclk       = 133000,
+		.pclk       = 66000,
+		.hclk_msys  = 200000,
+		.pclk_msys  = 100000,
+		.hclk_dsys  = 166750,
+		.pclk_dsys  = 83375,
+	},
+	[L5] = {	/* L5: 800MHz */
 		.fclk       = 800000,
 		.armclk     = 800000,
 		.hclk_tns   = 0,
@@ -198,17 +209,7 @@ static struct s3c_freq clk_info[] = {
 		.hclk_dsys  = 166750,
 		.pclk_dsys  = 83375,
 	},
-    [L5] = {	/* L2: 600MHz */
-		.fclk       = 600000,
-		.armclk     = 600000,
-		.hclk_tns   = 0,
-		.hclk       = 133000,
-		.pclk       = 66000,
-		.hclk_msys  = 200000,
-		.pclk_msys  = 100000,
-		.hclk_dsys  = 166750,
-		.pclk_dsys  = 83375,
-	},
+
 	[L6] = {	/* L6: 400MHz */
 		.fclk       = 800000,
 		.armclk     = 400000,
@@ -370,10 +371,10 @@ static void s5pv210_cpufreq_clksrcs_MPLL2APLL(unsigned int index,
 		case L3:
 			/* APLL FOUT becomes 1000 Mhz */
                         __raw_writel(PLL45XX_APLL_VAL_1000, S5P_APLL_CON);
-                        break;
-        case L5:
-			/* APLL FOUT becomes 600 Mhz */
-            __raw_writel(PLL45XX_APLL_VAL_600, S5P_APLL_CON);
+                        break;  
+        case L4:
+			/* APLL FOUT becomes 940 Mhz */
+            __raw_writel(PLL45XX_APLL_VAL_940, S5P_APLL_CON);
             break;
 		default:
 			/* APLL FOUT becomes 800 Mhz */
@@ -719,9 +720,9 @@ static int s5pv210_cpufreq_resume(struct cpufreq_policy *policy)
 
 	if (level == CPUFREQ_TABLE_END) { /* Not found */
 		pr_err("[%s:%d] clock speed does not match: "
-				"%d. Using L4 of 800MHz.\n",
+				"%d. Using L5 of 800MHz.\n",
 				__FILE__, __LINE__, rate);
-		level = L4;
+		level = L5;
 	}
 
 	memcpy(&s3c_freqs.old, &clk_info[level],
@@ -773,9 +774,9 @@ static int __init s5pv210_cpufreq_driver_init(struct cpufreq_policy *policy)
 
 	if (level == CPUFREQ_TABLE_END) { /* Not found */
 		pr_err("[%s:%d] clock speed does not match: "
-				"%d. Using L4 of 800MHz.\n",
+				"%d. Using L5 of 800MHz.\n",
 				__FILE__, __LINE__, rate);
-		level = L4;
+		level = L5;
 	}
 
 	backup_dmc0_reg = __raw_readl(S5P_VA_DMC0 + 0x30) & 0xFFFF;
