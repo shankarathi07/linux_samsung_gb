@@ -37,12 +37,12 @@ int cpufreq_register_notifier(struct notifier_block *nb, unsigned int list);
 int cpufreq_unregister_notifier(struct notifier_block *nb, unsigned int list);
 #else		/* CONFIG_CPU_FREQ */
 static inline int cpufreq_register_notifier(struct notifier_block *nb,
-						unsigned int list)
+                                            unsigned int list)
 {
 	return 0;
 }
 static inline int cpufreq_unregister_notifier(struct notifier_block *nb,
-						unsigned int list)
+                                              unsigned int list)
 {
 	return 0;
 }
@@ -78,7 +78,7 @@ struct cpufreq_cpuinfo {
 struct cpufreq_real_policy {
 	unsigned int		min;    /* in kHz */
 	unsigned int		max;    /* in kHz */
-        unsigned int		policy; /* see above */
+    unsigned int		policy; /* see above */
 	struct cpufreq_governor	*governor; /* see below */
 };
 
@@ -86,22 +86,22 @@ struct cpufreq_policy {
 	cpumask_var_t		cpus;	/* CPUs requiring sw coordination */
 	cpumask_var_t		related_cpus; /* CPUs with any coordination */
 	unsigned int		shared_type; /* ANY or ALL affected CPUs
-						should set cpufreq */
+                                      should set cpufreq */
 	unsigned int		cpu;    /* cpu nr of registered CPU */
 	struct cpufreq_cpuinfo	cpuinfo;/* see above */
-
+    
 	unsigned int		min;    /* in kHz */
 	unsigned int		max;    /* in kHz */
 	unsigned int		cur;    /* in kHz, only needed if cpufreq
-					 * governors are used */
-        unsigned int		policy; /* see above */
+                                 * governors are used */
+    unsigned int		policy; /* see above */
 	struct cpufreq_governor	*governor; /* see below */
-
+    
 	struct work_struct	update; /* if update_policy() needs to be
-					 * called, but you're in IRQ context */
-
+                                 * called, but you're in IRQ context */
+    
 	struct cpufreq_real_policy	user_policy;
-
+    
 	struct kobject		kobj;
 	struct completion	kobj_unregister;
 };
@@ -143,17 +143,17 @@ struct cpufreq_freqs {
 static inline unsigned long cpufreq_scale(unsigned long old, u_int div, u_int mult)
 {
 #if BITS_PER_LONG == 32
-
+    
 	u64 result = ((u64) old) * ((u64) mult);
 	do_div(result, div);
 	return (unsigned long) result;
-
+    
 #elif BITS_PER_LONG == 64
-
+    
 	unsigned long result = old * ((u64) mult);
 	result /= div;
 	return result;
-
+    
 #endif
 };
 
@@ -168,14 +168,14 @@ static inline unsigned long cpufreq_scale(unsigned long old, u_int div, u_int mu
 struct cpufreq_governor {
 	char	name[CPUFREQ_NAME_LEN];
 	int 	(*governor)	(struct cpufreq_policy *policy,
-				 unsigned int event);
+                         unsigned int event);
 	ssize_t	(*show_setspeed)	(struct cpufreq_policy *policy,
-					 char *buf);
+                                 char *buf);
 	int 	(*store_setspeed)	(struct cpufreq_policy *policy,
-					 unsigned int freq);
+                                 unsigned int freq);
 	unsigned int max_transition_latency; /* HW must be able to switch to
-			next freq faster than this value in nano secs or we
-			will fallback to performance governor */
+                                          next freq faster than this value in nano secs or we
+                                          will fallback to performance governor */
 	struct list_head	governor_list;
 	struct module		*owner;
 };
@@ -183,15 +183,15 @@ struct cpufreq_governor {
 /* pass a target to the cpufreq driver 
  */
 extern int cpufreq_driver_target(struct cpufreq_policy *policy,
-				 unsigned int target_freq,
-				 unsigned int relation);
+                                 unsigned int target_freq,
+                                 unsigned int relation);
 extern int __cpufreq_driver_target(struct cpufreq_policy *policy,
-				   unsigned int target_freq,
-				   unsigned int relation);
+                                   unsigned int target_freq,
+                                   unsigned int relation);
 
 
 extern int __cpufreq_driver_getavg(struct cpufreq_policy *policy,
-				   unsigned int cpu);
+                                   unsigned int cpu);
 
 int cpufreq_register_governor(struct cpufreq_governor *governor);
 void cpufreq_unregister_governor(struct cpufreq_governor *governor);
@@ -200,7 +200,7 @@ int lock_policy_rwsem_read(int cpu);
 int lock_policy_rwsem_write(int cpu);
 void unlock_policy_rwsem_read(int cpu);
 void unlock_policy_rwsem_write(int cpu);
-
+int trylock_policy_rwsem_write(int cpu);
 
 /*********************************************************************
  *                      CPUFREQ DRIVER INTERFACE                     *
@@ -215,25 +215,25 @@ struct cpufreq_driver {
 	struct module           *owner;
 	char			name[CPUFREQ_NAME_LEN];
 	u8			flags;
-
+    
 	/* needed by all drivers */
 	int	(*init)		(struct cpufreq_policy *policy);
 	int	(*verify)	(struct cpufreq_policy *policy);
-
+    
 	/* define one out of two */
 	int	(*setpolicy)	(struct cpufreq_policy *policy);
 	int	(*target)	(struct cpufreq_policy *policy,
-				 unsigned int target_freq,
-				 unsigned int relation);
-
+                     unsigned int target_freq,
+                     unsigned int relation);
+    
 	/* should be defined, if possible */
 	unsigned int	(*get)	(unsigned int cpu);
-
+    
 	/* optional */
 	unsigned int (*getavg)	(struct cpufreq_policy *policy,
-				 unsigned int cpu);
+                             unsigned int cpu);
 	int	(*bios_limit)	(int cpu, unsigned int *limit);
-
+    
 	int	(*exit)		(struct cpufreq_policy *policy);
 	int	(*suspend)	(struct cpufreq_policy *policy, pm_message_t pmsg);
 	int	(*resume)	(struct cpufreq_policy *policy);
@@ -243,12 +243,12 @@ struct cpufreq_driver {
 /* flags */
 
 #define CPUFREQ_STICKY		0x01	/* the driver isn't removed even if 
-					 * all ->init() calls failed */
+* all ->init() calls failed */
 #define CPUFREQ_CONST_LOOPS 	0x02	/* loops_per_jiffy or other kernel
-					 * "constants" aren't affected by
-					 * frequency transitions */
+* "constants" aren't affected by
+* frequency transitions */
 #define CPUFREQ_PM_NO_WARN	0x04	/* don't warn on suspend/resume speed
-					 * mismatches */
+* mismatches */
 
 int cpufreq_register_driver(struct cpufreq_driver *driver_data);
 int cpufreq_unregister_driver(struct cpufreq_driver *driver_data);
@@ -280,7 +280,7 @@ struct freq_attr {
 
 #define cpufreq_freq_attr_ro(_name)		\
 static struct freq_attr _name =			\
-__ATTR(_name, 0444, show_##_name, NULL)
+__ATTR(_name, 0440, show_##_name, NULL)
 
 #define cpufreq_freq_attr_ro_perm(_name, _perm)	\
 static struct freq_attr _name =			\
@@ -292,7 +292,7 @@ __ATTR(_name, 0444, show_##_name##_old, NULL)
 
 #define cpufreq_freq_attr_rw(_name)		\
 static struct freq_attr _name =			\
-__ATTR(_name, 0644, show_##_name, store_##_name)
+__ATTR(_name, 0640, show_##_name, store_##_name)
 
 #define cpufreq_freq_attr_rw_old(_name)		\
 static struct freq_attr _name##_old =		\
@@ -302,9 +302,9 @@ __ATTR(_name, 0644, show_##_name##_old, store_##_name##_old)
 struct global_attr {
 	struct attribute attr;
 	ssize_t (*show)(struct kobject *kobj,
-			struct attribute *attr, char *buf);
+                    struct attribute *attr, char *buf);
 	ssize_t (*store)(struct kobject *a, struct attribute *b,
-			 const char *c, size_t count);
+                     const char *c, size_t count);
 };
 
 #define define_one_global_ro(_name)		\
@@ -349,9 +349,9 @@ static inline unsigned int cpufreq_quick_get(unsigned int cpu)
 
 
 /*
-  Performance governor is fallback governor if any other gov failed to
-  auto load due latency restrictions
-*/
+ Performance governor is fallback governor if any other gov failed to
+ auto load due latency restrictions
+ */
 #ifdef CONFIG_CPU_FREQ_GOV_PERFORMANCE
 extern struct cpufreq_governor cpufreq_gov_performance;
 #endif
@@ -372,9 +372,9 @@ extern struct cpufreq_governor cpufreq_gov_conservative;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE)
 extern struct cpufreq_governor cpufreq_gov_interactive;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactive)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASS)
-extern struct cpufreq_governor cpufreq_gov_smartass;
-#define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_smartass)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASS2)
+extern struct cpufreq_governor cpufreq_gov_smartass2;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_smartass2)
 #endif
 
 
@@ -388,20 +388,20 @@ extern struct cpufreq_governor cpufreq_gov_smartass;
 struct cpufreq_frequency_table {
 	unsigned int	index;     /* any */
 	unsigned int	frequency; /* kHz - doesn't need to be in ascending
-				    * order */
+                                * order */
 };
 
 int cpufreq_frequency_table_cpuinfo(struct cpufreq_policy *policy,
-				    struct cpufreq_frequency_table *table);
+                                    struct cpufreq_frequency_table *table);
 
 int cpufreq_frequency_table_verify(struct cpufreq_policy *policy,
-				   struct cpufreq_frequency_table *table);
+                                   struct cpufreq_frequency_table *table);
 
 int cpufreq_frequency_table_target(struct cpufreq_policy *policy,
-				   struct cpufreq_frequency_table *table,
-				   unsigned int target_freq,
-				   unsigned int relation,
-				   unsigned int *index);
+                                   struct cpufreq_frequency_table *table,
+                                   unsigned int target_freq,
+                                   unsigned int relation,
+                                   unsigned int *index);
 
 /* the following 3 funtions are for cpufreq core use only */
 struct cpufreq_frequency_table *cpufreq_frequency_get_table(unsigned int cpu);
@@ -412,7 +412,7 @@ void   cpufreq_cpu_put (struct cpufreq_policy *data);
 extern struct freq_attr cpufreq_freq_attr_scaling_available_freqs;
 
 void cpufreq_frequency_table_get_attr(struct cpufreq_frequency_table *table, 
-				      unsigned int cpu);
+                                      unsigned int cpu);
 
 void cpufreq_frequency_table_put_attr(unsigned int cpu);
 
@@ -428,7 +428,7 @@ void cpufreq_frequency_table_put_attr(unsigned int cpu);
 #ifdef CONFIG_CPU_FREQ_DEBUG
 
 extern void cpufreq_debug_printk(unsigned int type, const char *prefix, 
-				 const char *fmt, ...);
+                                 const char *fmt, ...);
 
 #else
 
