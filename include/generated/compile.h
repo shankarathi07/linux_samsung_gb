@@ -1,8 +1,8 @@
-/* This file is auto generated, version 4 */
+/* This file is auto generated, version 3 */
 /*  PREEMPT */
 #define UTS_MACHINE "arm"
-#define UTS_VERSION "#4 PREEMPT Mon Sep 5 13:05:21 CDT 2011"
-#define LINUX_COMPILE_TIME "13:05:21"
+#define UTS_VERSION "#3 PREEMPT Sat Sep 17 01:17:44 CDT 2011"
+#define LINUX_COMPILE_TIME "01:17:44"
 #define LINUX_COMPILE_BY "shankar"
 #define LINUX_COMPILE_HOST "Matr1x.local"
 #define LINUX_COMPILE_DOMAIN
