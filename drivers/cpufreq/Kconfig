@@ -127,18 +127,12 @@ config CPU_FREQ_DEFAULT_GOV_SMARTASS
 	help
 	  Use the CPUFreq governor 'smartass' as default.
 
-config CPU_FREQ_DEFAULT_GOV_SNAPPY
-        bool "snappy"
-        select CPU_FREQ_GOV_SNAPPY
+config CPU_FREQ_DEFAULT_GOV_LAZY
+        bool "lazy"
+        select CPU_FREQ_GOV_LAZY
         select CPU_FREQ_GOV_PERFORMANCE
         help
-          Use the CPUFreq governor 'snappy' as default.
-
-config CPU_FREQ_DEFAULT_GOV_SMARTASS2
-	bool "smartass2"
-	select CPU_FREQ_GOV_SMARTASS2
-	help
-	  Use the CPUFreq governor 'smartassV2' as default.
+          Use the CPUFreq governor 'lazy' as default.
 
 endchoice
 
@@ -207,16 +201,9 @@ config CPU_FREQ_GOV_SMARTASS
 	tristate "'smartass' cpufreq governor"
 	depends on CPU_FREQ
 
-config CPU_FREQ_GOV_SNAPPY
-        tristate "'snappy' cpufreq governor"
+config CPU_FREQ_GOV_LAZY
+        tristate "'lazy' cpufreq governor"
         depends on CPU_FREQ
-
-
-config CPU_FREQ_GOV_SMARTASS2
-	tristate "'smartassV2' cpufreq governor"
-	depends on CPU_FREQ
-	help
-	  'smartassV2' - a "smart" optimized governor!
 
 config CPU_FREQ_GOV_CONSERVATIVE
 	tristate "'conservative' cpufreq governor"
@@ -238,8 +225,6 @@ config CPU_FREQ_GOV_CONSERVATIVE
 	  module will be called cpufreq_conservative.
 
 	  For details, take a look at linux/Documentation/cpu-freq.
-
-	  If in doubt, say N.
 
 	  If in doubt, say N.
 
