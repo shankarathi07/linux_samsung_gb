@@ -56,7 +56,7 @@ extern int exp_UV_mV[8];
 
 /* frequency */
 static struct cpufreq_frequency_table freq_table[] = {
-	{L0, 1440*1000},
+	{L0, 1500*1000},
 	{L1, 1300*1000},
 	{L2, 1200*1000},
 	{L3, 1000*1000},
@@ -89,24 +89,24 @@ static struct s5pv210_dvs_conf dvs_conf[] = {
 		.int_volt   = 1110000,
 	},
 	[L3] = {
-		.arm_volt   = 1210000,
-		.int_volt   = 1010000,
+		.arm_volt   = 1240000,
+		.int_volt   = 1040000,
 	},
 	[L4] = {
-		.arm_volt   = 1175000,
-		.int_volt   = 975000,
+		.arm_volt   = 1190000,
+		.int_volt   = 990000,
 	},
     [L5] = {
-		.arm_volt   = 1025000,
-		.int_volt   = 825000,
+		.arm_volt   = 1040000,
+		.int_volt   = 840000,
 	},
     [L6] = {
-		.arm_volt   = 900000,
-		.int_volt   = 700000,
+		.arm_volt   = 940000,
+		.int_volt   = 740000,
 	},
 	[L7] = {
-		.arm_volt   = 900000,
-		.int_volt   = 700000,
+		.arm_volt   = 940000,
+		.int_volt   = 740000,
 	},
 
 };
@@ -135,9 +135,9 @@ static u32 clkdiv_val[8][11] = {
 };
 
 static struct s3c_freq clk_info[] = {
-	[L0] = {	/* L0: 1.44GHz */
-		.fclk       = 1440000,
-		.armclk     = 1440000,
+	[L0] = {	/* L0: 1.5GHz */
+		.fclk       = 1500000,
+		.armclk     = 1500000,
 		.hclk_tns   = 0,
 		.hclk       = 133000,
 		.pclk       = 66000,
@@ -237,7 +237,7 @@ static int dividers[sizeof(clk_info) /  sizeof(struct s3c_freq)];
 #endif
 
 
-static inufreq_verify_speed(struct cpufreq_policy *policy)
+static cpufreq_verify_speed(struct cpufreq_policy *policy)
 {
 	if (policy->cpu)
 		return -EINVAL;
@@ -359,8 +359,8 @@ static void s5pv210_cpufreq_clksrcs_MPLL2APLL(unsigned int index,
 // 
 	switch ( index ) {
 		case L0:
-			/* APLL FOUT becomes 1440 Mhz */
-                	__raw_writel(PLL45XX_APLL_VAL_1440, S5P_APLL_CON);
+			/* APLL FOUT becomes 1500 Mhz */
+                	__raw_writel(PLL45XX_APLL_VAL_1500, S5P_APLL_CON);
 			break;
 
 		case L1:
