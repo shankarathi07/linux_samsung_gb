@@ -56,8 +56,8 @@ extern int exp_UV_mV[8];
 
 /* frequency */
 static struct cpufreq_frequency_table freq_table[] = {
-	{L0, 1500*1000},
-	{L1, 1300*1000},
+	{L0, 1460*1000},
+    {L1, 1300*1000},
 	{L2, 1200*1000},
 	{L3, 1000*1000},
     {L4, 800*1000},
@@ -73,40 +73,40 @@ struct s5pv210_dvs_conf {
 };
 
 const unsigned long arm_volt_max = 1500000;
-const unsigned long int_volt_max = 1250000;
+const unsigned long int_volt_max = 1300000;
 
 static struct s5pv210_dvs_conf dvs_conf[] = {
-	[L0] = {
-		.arm_volt   = 1420000,
-		.int_volt   = 1220000,
+    [L0] = {
+		.arm_volt   = 1425000,
+		.int_volt   = 1225000,
 	},
 	[L1] = {
-		.arm_volt   = 1375000,
-		.int_volt   = 1175000,
+		.arm_volt   = 1380000,
+		.int_volt   = 1180000,
 	},
 	[L2] = {
-		.arm_volt   = 1310000,
-		.int_volt   = 1110000,
+		.arm_volt   = 1315000,
+		.int_volt   = 1115000,
 	},
 	[L3] = {
-		.arm_volt   = 1240000,
-		.int_volt   = 1040000,
+		.arm_volt   = 1215000,
+		.int_volt   = 1015000,
 	},
 	[L4] = {
-		.arm_volt   = 1190000,
-		.int_volt   = 990000,
+		.arm_volt   = 1180000,
+		.int_volt   = 980000,
 	},
     [L5] = {
-		.arm_volt   = 1040000,
-		.int_volt   = 840000,
+		.arm_volt   = 1030000,
+		.int_volt   = 830000,
 	},
     [L6] = {
-		.arm_volt   = 940000,
-		.int_volt   = 740000,
+		.arm_volt   = 905000,
+		.int_volt   = 705000,
 	},
 	[L7] = {
-		.arm_volt   = 940000,
-		.int_volt   = 740000,
+		.arm_volt   = 905000,
+		.int_volt   = 705000,
 	},
 
 };
@@ -135,9 +135,9 @@ static u32 clkdiv_val[8][11] = {
 };
 
 static struct s3c_freq clk_info[] = {
-	[L0] = {	/* L0: 1.5GHz */
-		.fclk       = 1500000,
-		.armclk     = 1500000,
+	[L0] = {	/* L0: 1.46GHz */
+		.fclk       = 1460000,
+		.armclk     = 1460000,
 		.hclk_tns   = 0,
 		.hclk       = 133000,
 		.pclk       = 66000,
@@ -146,7 +146,6 @@ static struct s3c_freq clk_info[] = {
 		.hclk_dsys  = 166750,
 		.pclk_dsys  = 83375,
 	},
-
 	[L1] = {	/* L1: 1.3GHz */
 		.fclk       = 1300000,
 		.armclk     = 1300000,
@@ -237,7 +236,7 @@ static int dividers[sizeof(clk_info) /  sizeof(struct s3c_freq)];
 #endif
 
 
-static cpufreq_verify_speed(struct cpufreq_policy *policy)
+static s5pv210_cpufreq_verify_speed(struct cpufreq_policy *policy)
 {
 	if (policy->cpu)
 		return -EINVAL;
@@ -359,14 +358,14 @@ static void s5pv210_cpufreq_clksrcs_MPLL2APLL(unsigned int index,
 // 
 	switch ( index ) {
 		case L0:
-			/* APLL FOUT becomes 1500 Mhz */
-                	__raw_writel(PLL45XX_APLL_VAL_1500, S5P_APLL_CON);
+			/* APLL FOUT becomes 1460 Mhz */
+                	__raw_writel(PLL45XX_APLL_VAL_1460, S5P_APLL_CON);
 			break;
 
-		case L1:
-                        /* APLL FOUT becomes 1300 Mhz */
-                        __raw_writel(PLL45XX_APLL_VAL_1300, S5P_APLL_CON);
-                        break;
+        case L1:
+            /* APLL FOUT becomes 1300 Mhz */
+            __raw_writel(PLL45XX_APLL_VAL_1300, S5P_APLL_CON);
+            break;
 		case L2:
 			/* APLL FOUT becomes 1200 Mhz */
                         __raw_writel(PLL45XX_APLL_VAL_1200, S5P_APLL_CON);
