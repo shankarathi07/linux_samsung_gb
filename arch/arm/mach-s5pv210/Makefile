@@ -34,7 +34,7 @@ obj-$(CONFIG_MACH_HERRING)	+= herring-touchkey-led.o
 obj-$(CONFIG_MACH_HERRING)	+= dev-herring-phone.o
 
 obj-$(CONFIG_CPU_FREQ)		+= cpu-freq.o
-obj-$(CONFIG_S5PV210_SETUP_SDHCI)       += setup-sdhci.o
+obj-$(CONFIG_S5PV210_SETUP_SDHCI)      += setup-sdhci.o
 
 # device support
 

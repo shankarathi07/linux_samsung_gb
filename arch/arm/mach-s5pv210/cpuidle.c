@@ -69,8 +69,8 @@ static struct check_device_op chk_dev_op[] = {
 	{.base = 0, .pdev = NULL},
 };
 
-#define S3C_HSMMC_PRNSTS	(0x24)
-#define S3C_HSMMC_CLKCON	(0x2c)
+#define S3C_HSMMC_PRNSTS	    (0x24)
+#define S3C_HSMMC_CLKCON	    (0x2c)
 #define S3C_HSMMC_CMD_INHIBIT	0x00000001
 #define S3C_HSMMC_DATA_INHIBIT	0x00000002
 #define S3C_HSMMC_CLOCK_CARD_EN	0x0004
