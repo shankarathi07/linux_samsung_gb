@@ -233,6 +233,8 @@ static unsigned int sleep_freq;
 
 static unsigned long original_fclk[sizeof(clk_info) /  sizeof(struct s3c_freq)];
 static int dividers[sizeof(clk_info) /  sizeof(struct s3c_freq)];
+
+
 #endif
 
 
@@ -444,7 +446,18 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 	unsigned int pll_changing = 0;
 	unsigned int bus_speed_changing = 0;
 
-	mutex_lock(&set_freq_lock);
+	
+    
+#ifdef CONFIG_LIVE_OC
+
+    if (!mutex_trylock(&set_freq_lock))
+        	
+          goto no_lock;
+ 	
+    #else
+        	
+        mutex_lock(&set_freq_lock);
+#endif
 
 	cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, KERN_INFO,
 			"cpufreq: Entering for %dkHz\n", target_freq);
@@ -689,13 +702,21 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 	if (first_run)
 		first_run = false;
 out:
-	mutex_unlock(&set_freq_lock);
+	mmutex_unlock(&set_freq_lock);
+    
+#ifdef CONFIG_LIVE_OC
+    
+    no_lock:
+    
+#endif
+    
 	return ret;
 }
 
 #ifdef CONFIG_PM
 static int s5pv210_cpufreq_suspend(struct cpufreq_policy *policy,
 		pm_message_t pmsg)
+
 {
 	return 0;
 }
@@ -783,6 +804,8 @@ void liveoc_update(unsigned int oc_value)
     
     struct cpufreq_policy * policy = cpufreq_cpu_get(0);
     
+    mutex_lock(&set_freq_lock);
+    
     i = 0;
     apll_freq_max = 0;
     
@@ -821,6 +844,9 @@ void liveoc_update(unsigned int oc_value)
     policy->user_policy.min = freq_table[index_min].frequency;
     policy->user_policy.max = freq_table[index_max].frequency; 
     cpufreq_stats_reset();
+    
+    mutex_unlock(&set_freq_lock);
+ 	
     
     return;
 }
