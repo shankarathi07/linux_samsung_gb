@@ -702,7 +702,7 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 	if (first_run)
 		first_run = false;
 out:
-	mmutex_unlock(&set_freq_lock);
+	mutex_unlock(&set_freq_lock);
     
 #ifdef CONFIG_LIVE_OC
     
