@@ -128,7 +128,7 @@ struct chg_data {
 	struct max8998_charger_callbacks callbacks;
 };
 
-static char *supply_list[] = {
+static char *supply_list[] =  {
 	"battery",
 };
 

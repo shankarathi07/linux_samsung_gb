@@ -38,7 +38,7 @@
 #define MAX17040_DELAY		1000
 #define MAX17040_BATTERY_FULL	95
 
-struct max17040_chip {
+struct max17040_chip  {
 	struct i2c_client		*client;
 	struct power_supply		battery;
 	struct max17040_platform_data	*pdata;
