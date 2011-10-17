@@ -47,10 +47,6 @@
 #include "s5pc110_battery.h"
 #include <linux/mfd/max8998.h>
 
-#ifdef CONFIG_BLX
-#include <linux/blx.h>
-#endif
-
 #define POLLING_INTERVAL	1000
 #define ADC_TOTAL_COUNT		10
 #define ADC_DATA_ARR_SIZE	6
@@ -203,10 +199,11 @@ static int s3c_bat_get_property(struct power_supply *bat_ps,
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
 	case POWER_SUPPLY_PROP_CAPACITY:
-		if (chg->pdata && chg->pdata->psy_fuelgauge &&
-			chg->pdata->psy_fuelgauge->get_property &&
-			chg->pdata->psy_fuelgauge->get_property(chg->pdata->psy_fuelgauge,
-				psp, (union power_supply_propval *)&val->intval) < 0)
+		if (chg->pdata &&
+			 chg->pdata->psy_fuelgauge &&
+			 chg->pdata->psy_fuelgauge->get_property &&
+			 chg->pdata->psy_fuelgauge->get_property(
+				chg->pdata->psy_fuelgauge, psp, val) < 0)
 			return -EINVAL;
 		break;
 	case POWER_SUPPLY_PROP_TECHNOLOGY:
@@ -393,35 +390,26 @@ static void s3c_bat_discharge_reason(struct chg_data *chg)
 
 	discharge_reason = chg->bat_info.dis_reason & 0xf;
 
-	if (discharge_reason == DISCONNECT_BAT_FULL &&
+	if (discharge_reason & DISCONNECT_BAT_FULL &&
 			chg->bat_info.batt_vcell < RECHARGE_COND_VOLTAGE)
 		chg->bat_info.dis_reason &= ~DISCONNECT_BAT_FULL;
 
-	if (discharge_reason == DISCONNECT_TEMP_OVERHEAT &&
+	if (discharge_reason & DISCONNECT_TEMP_OVERHEAT &&
 			chg->bat_info.batt_temp <=
 			HIGH_RECOVER_TEMP)
 		chg->bat_info.dis_reason &= ~DISCONNECT_TEMP_OVERHEAT;
 
-	if (discharge_reason == DISCONNECT_TEMP_FREEZE &&
+	if (discharge_reason & DISCONNECT_TEMP_FREEZE &&
 			chg->bat_info.batt_temp >=
 			LOW_RECOVER_TEMP)
 		chg->bat_info.dis_reason &= ~DISCONNECT_TEMP_FREEZE;
 
-	if (discharge_reason == DISCONNECT_OVER_TIME &&
+	if (discharge_reason & DISCONNECT_OVER_TIME &&
 			chg->bat_info.batt_vcell < RECHARGE_COND_VOLTAGE)
 		chg->bat_info.dis_reason &= ~DISCONNECT_OVER_TIME;
 
 	if (chg->set_batt_full)
 		chg->bat_info.dis_reason |= DISCONNECT_BAT_FULL;
-
-#ifdef CONFIG_BLX
-	if (chg->bat_info.batt_soc >= get_charginglimit())
-	    {
-		chg->bat_info.dis_reason |= DISCONNECT_BAT_FULL;
-
-		chg->bat_info.batt_is_full = true;
-	    }
-#endif
 
 	if (chg->bat_info.batt_health != POWER_SUPPLY_HEALTH_GOOD)
 		chg->bat_info.dis_reason |= chg->bat_info.batt_health ==
