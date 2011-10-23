@@ -14,7 +14,7 @@
 
 #define DEEPIDLE_VERSION 1
 
-static bool deepidle_enabled = false;
+static bool deepidle_enabled = true;
 
 static ssize_t deepidle_status_read(struct device * dev, struct device_attribute * attr, char * buf)
 {
