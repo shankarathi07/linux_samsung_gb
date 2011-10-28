@@ -447,17 +447,10 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 	unsigned int bus_speed_changing = 0;
 
 	
-    
-#ifdef CONFIG_LIVE_OC
 
-    if (!mutex_trylock(&set_freq_lock))
-        	
-          goto no_lock;
- 	
-    #else
         	
         mutex_lock(&set_freq_lock);
-#endif
+
 
 	cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, KERN_INFO,
 			"cpufreq: Entering for %dkHz\n", target_freq);
@@ -704,11 +697,7 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 out:
 	mutex_unlock(&set_freq_lock);
     
-#ifdef CONFIG_LIVE_OC
-    
-    no_lock:
-    
-#endif
+
     
 	return ret;
 }
@@ -843,11 +832,11 @@ void liveoc_update(unsigned int oc_value)
     cpufreq_frequency_table_cpuinfo(policy, freq_table);
     policy->user_policy.min = freq_table[index_min].frequency;
     policy->user_policy.max = freq_table[index_max].frequency; 
-    cpufreq_stats_reset();
     
     mutex_unlock(&set_freq_lock);
  	
-    
+    cpufreq_stats_reset();
+
     return;
 }
 EXPORT_SYMBOL(liveoc_update);

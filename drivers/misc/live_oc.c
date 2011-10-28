@@ -13,6 +13,8 @@
 
 #define LIVEOC_VERSION 1
 
+#define MAX_OCVALUE 150
+
 extern void liveoc_update(unsigned int oc_value);
 
 static int oc_value = 100;
@@ -28,11 +30,14 @@ static ssize_t liveoc_ocvalue_write(struct device * dev, struct device_attribute
 
     if(sscanf(buf, "%u\n", &data) == 1) 
 	{
-	    if (data >= 100 && data <= 120)
+	    if (data >= 100 && data <= MAX_OCVALUE)
 		{
-		    oc_value = data;
+		    if (data != oc_value)
+			{
+			    oc_value = data;
 		    
-		    liveoc_update(oc_value);
+			    liveoc_update(oc_value);
+			}
 
 		    pr_info("LIVEOC oc-value set to %u\n", oc_value);
 		}
