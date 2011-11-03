@@ -64,7 +64,7 @@ static inline int current_is_kswapd(void)
 #endif
 
 #define MAX_SWAPFILES \
-	((1 << MAX_SWAPFILES_SHIFT) - SWP_MIGRATION_NUM - SWP_HWPOISON_NUM)
+((1 << MAX_SWAPFILES_SHIFT) - SWP_MIGRATION_NUM - SWP_HWPOISON_NUM)
 
 /*
  * Magic header for a swap area. The first part of the union is
@@ -95,10 +95,10 @@ union swap_header {
 	} info;
 };
 
- /* A swap entry has to fit into a "unsigned long", as
-  * the entry is hidden in the "index" field of the
-  * swapper address space.
-  */
+/* A swap entry has to fit into a "unsigned long", as
+ * the entry is hidden in the "index" field of the
+ * swapper address space.
+ */
 typedef struct {
 	unsigned long val;
 } swp_entry_t;
@@ -138,7 +138,7 @@ struct swap_extent {
  */
 #define __swapoffset(x) ((unsigned long)&((union swap_header *)0)->x)
 #define MAX_SWAP_BADPAGES \
-	((__swapoffset(magic.magic) - __swapoffset(info.badpages)) / sizeof(int))
+((__swapoffset(magic.magic) - __swapoffset(info.badpages)) / sizeof(int))
 
 enum {
 	SWP_USED	= (1 << 0),	/* is slot in swap_info[] used? */
@@ -148,7 +148,7 @@ enum {
 	SWP_SOLIDSTATE	= (1 << 4),	/* blkdev seeks are cheap */
 	SWP_CONTINUED	= (1 << 5),	/* swap_map has count continuation */
 	SWP_BLKDEV	= (1 << 6),	/* its a block device */
-					/* add others here before... */
+    /* add others here before... */
 	SWP_SCANNING	= (1 << 8),	/* refcount in scan_swap_map */
 };
 
@@ -206,6 +206,7 @@ extern unsigned int nr_free_pagecache_pages(void);
 
 
 /* linux/mm/swap.c */
+extern void ____lru_cache_add(struct page *, enum lru_list lru, int tail);
 extern void __lru_cache_add(struct page *, enum lru_list lru);
 extern void lru_cache_add_lru(struct page *, enum lru_list lru);
 extern void activate_page(struct page *);
@@ -226,9 +227,14 @@ static inline void lru_cache_add_anon(struct page *page)
 	__lru_cache_add(page, LRU_INACTIVE_ANON);
 }
 
+static inline void lru_cache_add_file_tail(struct page *page, int tail)
+{
+  	____lru_cache_add(page, LRU_INACTIVE_FILE, tail);
+}
+
 static inline void lru_cache_add_file(struct page *page)
 {
-	__lru_cache_add(page, LRU_INACTIVE_FILE);
+	____lru_cache_add(page, LRU_INACTIVE_FILE, 0);
 }
 
 /* LRU Isolation modes. */
@@ -238,15 +244,15 @@ static inline void lru_cache_add_file(struct page *page)
 
 /* linux/mm/vmscan.c */
 extern unsigned long try_to_free_pages(struct zonelist *zonelist, int order,
-					gfp_t gfp_mask, nodemask_t *mask);
+                                       gfp_t gfp_mask, nodemask_t *mask);
 extern unsigned long try_to_free_mem_cgroup_pages(struct mem_cgroup *mem,
-						  gfp_t gfp_mask, bool noswap,
-						  unsigned int swappiness);
+                                                  gfp_t gfp_mask, bool noswap,
+                                                  unsigned int swappiness);
 extern unsigned long mem_cgroup_shrink_node_zone(struct mem_cgroup *mem,
-						gfp_t gfp_mask, bool noswap,
-						unsigned int swappiness,
-						struct zone *zone,
-						int nid);
+                                                 gfp_t gfp_mask, bool noswap,
+                                                 unsigned int swappiness,
+                                                 struct zone *zone,
+                                                 int nid);
 extern int __isolate_lru_page(struct page *page, int mode, int file);
 extern unsigned long shrink_all_memory(unsigned long nr_pages);
 extern int vm_swappiness;
@@ -271,7 +277,7 @@ extern void scan_mapping_unevictable_pages(struct address_space *);
 
 extern unsigned long scan_unevictable_pages;
 extern int scan_unevictable_handler(struct ctl_table *, int,
-					void __user *, size_t *, loff_t *);
+                                    void __user *, size_t *, loff_t *);
 extern int scan_unevictable_register_node(struct node *node);
 extern void scan_unevictable_unregister_node(struct node *node);
 
@@ -285,7 +291,7 @@ extern int shmem_unuse(swp_entry_t entry, struct page *page);
 
 #ifdef CONFIG_CGROUP_MEM_RES_CTLR
 extern void mem_cgroup_get_shmem_target(struct inode *inode, pgoff_t pgoff,
-					struct page **pagep, swp_entry_t *ent);
+                                        struct page **pagep, swp_entry_t *ent);
 #endif
 
 extern void swap_unplug_io_fn(struct backing_dev_info *, struct page *);
@@ -308,9 +314,9 @@ extern void free_page_and_swap_cache(struct page *);
 extern void free_pages_and_swap_cache(struct page **, int);
 extern struct page *lookup_swap_cache(swp_entry_t);
 extern struct page *read_swap_cache_async(swp_entry_t, gfp_t,
-			struct vm_area_struct *vma, unsigned long addr);
+                                          struct vm_area_struct *vma, unsigned long addr);
 extern struct page *swapin_readahead(swp_entry_t, gfp_t,
-			struct vm_area_struct *vma, unsigned long addr);
+                                     struct vm_area_struct *vma, unsigned long addr);
 
 /* linux/mm/swapfile.c */
 extern long nr_swap_pages;
@@ -380,13 +386,13 @@ static inline void mem_cgroup_uncharge_swap(swp_entry_t ent)
 #define total_swapcache_pages			0UL
 
 #define si_swapinfo(val) \
-	do { (val)->freeswap = (val)->totalswap = 0; } while (0)
+do { (val)->freeswap = (val)->totalswap = 0; } while (0)
 /* only sparc can not include linux/pagemap.h in this file
  * so leave page_cache_release and release_pages undeclared... */
 #define free_page_and_swap_cache(page) \
-	page_cache_release(page)
+page_cache_release(page)
 #define free_pages_and_swap_cache(pages, nr) \
-	release_pages((pages), (nr), 0);
+release_pages((pages), (nr), 0);
 
 static inline void show_swap_cache_info(void)
 {
@@ -418,7 +424,7 @@ static inline void swapcache_free(swp_entry_t swp, struct page *page)
 }
 
 static inline struct page *swapin_readahead(swp_entry_t swp, gfp_t gfp_mask,
-			struct vm_area_struct *vma, unsigned long addr)
+                                            struct vm_area_struct *vma, unsigned long addr)
 {
 	return NULL;
 }
@@ -439,7 +445,7 @@ static inline int add_to_swap(struct page *page)
 }
 
 static inline int add_to_swap_cache(struct page *page, swp_entry_t entry,
-							gfp_t gfp_mask)
+                                    gfp_t gfp_mask)
 {
 	return -1;
 }
