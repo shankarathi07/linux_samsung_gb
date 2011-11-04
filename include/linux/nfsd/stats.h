@@ -12,7 +12,7 @@
 #include <linux/nfs4.h>
 
 /* thread usage wraps very million seconds (approx one fortnight) */
-#define	NFSD_USAGE_WRAP	(HZ*100000)
+#define	NFSD_USAGE_WRAP	(HZ*1000000)
 
 #ifdef __KERNEL__
 
