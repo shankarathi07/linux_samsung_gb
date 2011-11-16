@@ -37,6 +37,7 @@
 extern bool suspend_ongoing(void);
 extern bool bt_is_running(void);
 extern bool gps_is_running(void);
+extern bool vibrator_is_running(void);
 
 /*
  * For saving & restoring VIC register before entering
@@ -267,11 +268,11 @@ static void s5p_enter_didle(bool top_on)
 	/*
 	 * Wakeup source configuration for didle
 	 * We use the same wakeup mask as for sleep state plus make
-	 * sure that at least RTC ALARM, KEY, I2S and ST are enabled
-	 * as wakeup sources
+	 * sure that at least RTC ALARM, RTC TICK, KEY, I2S and ST are
+	 * enabled as wakeup sources
 	 */
 	tmp = s3c_irqwake_intmask;
-	tmp &= ~((1<<1) | (1<<5) | (1<<13) | (1<<14));
+	tmp &= ~((1<<1) | (1<<2) | (1<<5) | (1<<13) | (1<<14));
 	__raw_writel(tmp, S5P_WAKEUP_MASK);
     
 	tmp = __raw_readl(S5P_IDLE_CFG);
@@ -389,7 +390,7 @@ static int s5p_enter_idle_state(struct cpuidle_device *dev,
         if (!deepidle_is_enabled() || check_power_clock_gating() || suspend_ongoing() || loop_sdmmc_check() || check_usbotg_op() || check_rtcint()) {
 #endif
             s5p_enter_idle();
-        } else if (bt_is_running() || gps_is_running()) {
+        } else if (bt_is_running() || gps_is_running() || vibrator_is_running()) {
             s5p_enter_didle(true);
             idle_state = 1;
         } else {
