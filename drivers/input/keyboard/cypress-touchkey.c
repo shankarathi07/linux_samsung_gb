@@ -1,6 +1,7 @@
 /*
  * Copyright 2006-2010, Cypress Semiconductor Corporation.
  * Copyright (C) 2010, Samsung Electronics Co. Ltd. All Rights Reserved.
+ * Copyright 2011, Michael Richter (alias neldar)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +38,10 @@
 #include <linux/bld.h>
 #endif
 
+#ifdef CONFIG_SCREEN_DIMMER
+#include <linux/screen_dimmer.h>
+#endif
+
 #ifdef CONFIG_TOUCH_WAKE
 #include <linux/touch_wake.h>
 #endif
@@ -68,7 +73,9 @@ struct cypress_touchkey_devdata {
 };
 
 #ifdef CONFIG_GENERIC_BLN
+	
 static struct cypress_touchkey_devdata *blndevdata;
+	
 #endif
 
 #ifdef CONFIG_BLD
@@ -194,19 +201,31 @@ static irqreturn_t touchkey_interrupt_thread(int irq, void *touchkey_devdata)
 			goto err;
 		}
         
+#ifdef CONFIG_SCREEN_DIMMER
 #ifdef CONFIG_TOUCH_WAKE
-		if (!device_is_suspended())
+		if (!device_is_suspended() && !screen_is_dimmed())
+#else
+            if (!screen_is_dimmed())
 #endif
-        {
-			input_report_key(devdata->input_dev,
-                             devdata->pdata->keycode[scancode],
-                             !(data & UPDOWN_EVENT_MASK));
-        }
-#if defined(CONFIG_TOUCH_WAKE) || defined(CONFIG_BLD)
+#else
+#ifdef CONFIG_TOUCH_WAKE
+                if (!device_is_suspended())
+#endif
+#endif
+                {
+                    input_report_key(devdata->input_dev,
+                                     devdata->pdata->keycode[scancode],
+                                     !(data & UPDOWN_EVENT_MASK));
+                }
+        
+#if defined(CONFIG_TOUCH_WAKE) || defined(CONFIG_SCREEN_DIMMER) || defined(CONFIG_BLD)
 		if (!(data & UPDOWN_EVENT_MASK))
         {
 #ifdef CONFIG_BLD			
 			touchkey_pressed();
+#endif
+#ifdef CONFIG_SCREEN_DIMMER
+			touchscreen_pressed();
 #endif
 #ifdef CONFIG_TOUCH_WAKE
 			touch_press();
@@ -214,23 +233,34 @@ static irqreturn_t touchkey_interrupt_thread(int irq, void *touchkey_devdata)
         }
 #endif
 	} else {
+#ifdef CONFIG_SCREEN_DIMMER
 #ifdef CONFIG_TOUCH_WAKE
-		if (!device_is_suspended())
+		if (!device_is_suspended() && !screen_is_dimmed())
+#else
+            if (!screen_is_dimmed())
 #endif
-        {
-			for (i = 0; i < devdata->pdata->keycode_cnt; i++)
-			    input_report_key(devdata->input_dev,
-                                 devdata->pdata->keycode[i],
-                                 !!(data & (1U << i)));
-        }
+#else
+#ifdef CONFIG_TOUCH_WAKE
+                if (!device_is_suspended())
+#endif
+#endif
+                {
+                    for (i = 0; i < devdata->pdata->keycode_cnt; i++)
+                        input_report_key(devdata->input_dev,
+                                         devdata->pdata->keycode[i],
+                                         !!(data & (1U << i)));
+                }
         
-#if defined(CONFIG_TOUCH_WAKE) || defined(CONFIG_BLD)
+#if defined(CONFIG_TOUCH_WAKE) || defined(CONFIG_SCREEN_DIMMER) || defined(CONFIG_BLD)
 		for (i = 0; i < devdata->pdata->keycode_cnt; i++)
         {
 			if(!!(data & (1U << i)))
             {
 #ifdef CONFIG_BLD			
 				touchkey_pressed();
+#endif
+#ifdef CONFIG_SCREEN_DIMMER
+				touchscreen_pressed();
 #endif
 #ifdef CONFIG_TOUCH_WAKE
 				touch_press();
@@ -374,6 +404,7 @@ static int update_firmware(struct cypress_touchkey_devdata *devdata)
 	return ret;
 }
 
+
 static int cypress_touchkey_open(struct input_dev *input_dev)
 {
 	struct device *dev = &input_dev->dev;
@@ -455,6 +486,7 @@ static void cypress_touchkey_disable_led_notification(void){
 	 */
 	blndevdata->pdata->touchkey_sleep_onoff(TOUCHKEY_OFF);
     
+    
 	/* if touchkeys lights are not used for touchmode */
 	if (blndevdata->is_powering_on){
 		disable_touchkey_backlights();
@@ -479,24 +511,6 @@ static void cypress_touchkey_disable_led_notification(void){
 static struct bln_implementation cypress_touchkey_bln = {
 	.enable = cypress_touchkey_enable_led_notification,
 	.disable = cypress_touchkey_disable_led_notification,
-};
-#endif
-
-#ifdef CONFIG_BLD
-static void cypress_touchkey_bld_disable(void)
-{
-    i2c_touchkey_write_byte(blddevdata, blddevdata->backlight_off);
-}
-
-static void cypress_touchkey_bld_enable(void)
-{
-    i2c_touchkey_write_byte(blddevdata, blddevdata->backlight_on);
-}
-
-static struct bld_implementation cypress_touchkey_bld = 
-{
-	.enable = cypress_touchkey_bld_enable,
-	.disable = cypress_touchkey_bld_disable,
 };
 #endif
 
@@ -554,6 +568,24 @@ static struct touchwake_implementation cypress_touchwake =
 {
 	.enable = cypress_touchwake_enable,
 	.disable = cypress_touchwake_disable,
+};
+#endif
+
+#ifdef CONFIG_BLD
+static void cypress_touchkey_bld_disable(void)
+{
+    i2c_touchkey_write_byte(blddevdata, blddevdata->backlight_off);
+}
+
+static void cypress_touchkey_bld_enable(void)
+{
+    i2c_touchkey_write_byte(blddevdata, blddevdata->backlight_on);
+}
+
+static struct bld_implementation cypress_touchkey_bld = 
+{
+	.enable = cypress_touchkey_bld_enable,
+	.disable = cypress_touchkey_bld_disable,
 };
 #endif
 
@@ -672,6 +704,7 @@ static int cypress_touchkey_probe(struct i2c_client *client,
 #endif
     
 	return 0;
+    
     
 err_req_irq:
 err_backlight_on:

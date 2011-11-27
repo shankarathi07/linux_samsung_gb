@@ -15,8 +15,11 @@
 #include <linux/init.h>
 #include <linux/gpio.h>
 #include <linux/earlysuspend.h>
-#include <linux/bln.h>
 #include <asm/mach-types.h>
+
+#ifdef CONFIG_GENERIC_BLN
+#include <linux/bln.h>
+#endif
 
 #ifdef CONFIG_BLD
 #include <linux/bld.h>
@@ -89,12 +92,17 @@ static int __init herring_init_touchkey_led(void)
 {
 	int i;
 	int ret = 0;
-	u32 gpio;
+#ifdef CONFIG_GENERIC_BLN
+    	
+    u32 gpio;
+    	
+    #endif
 
 	if (!machine_is_herring() || !herring_is_tft_dev())
 		return 0;
 
 	for (i = 0; i < ARRAY_SIZE(led_gpios); i++) {
+#ifdef CONFIG_GENERIC_BLN
 		gpio = S5PV210_GPJ3(led_gpios[i]);
 		ret = gpio_request(gpio, "touchkey led");
 		if (ret) {
@@ -104,6 +112,17 @@ static int __init herring_init_touchkey_led(void)
 		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
 		s3c_gpio_slp_cfgpin(gpio, S3C_GPIO_SLP_PREV);
 		s3c_gpio_slp_setpull_updown(gpio, S3C_GPIO_PULL_NONE);
+#else
+		gpio = S5PV210_GPJ3(led_gpios[i]);
+		ret = gpio_request(gpio, "touchkey led");
+		if (ret) {
+			pr_err("Failed to request touchkey led gpio %d\n", i);
+			goto err_req;
+		}
+		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
+		s3c_gpio_slp_cfgpin(gpio, S3C_GPIO_SLP_PREV);
+		s3c_gpio_slp_setpull_updown(gpio, S3C_GPIO_PULL_NONE);
+#endif
 	}
 
 	herring_touchkey_led_onoff(1);
